@@ -1,4 +1,4 @@
-from typing import List, Any
+from typing import List, Any, Optional
 import os
 
 from pymongo.collection import Collection, Mapping
@@ -36,12 +36,12 @@ class User(BaseModel):
 
 class Order(BaseModel):
     aadhar: int
-    image_url: str
+    image_url: Optional[str]
     type: str
     company: str
     model: str
     variant: str
-    imei: str
+    imei: Optional[str]
     color: str
     status: int = 0
 
@@ -94,6 +94,7 @@ def shutdown_db_client():
 async def create(user: User, role: str):
     collection = ROLE.get(role)
     if not collection:
+        print('returning false')
         return False
     if (app.db[collection].find_one({"aadhar": user.aadhar})):
         return False
@@ -180,6 +181,8 @@ async def img(file: UploadFile = File(...)):
                                      prompt="tell me wether the object is damaged or not?",
                                      images=[await file.read()]
                                      )
+    print(response['response'].strip())
+
     return response['response'].strip()
 
 
